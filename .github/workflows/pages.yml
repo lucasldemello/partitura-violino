@@ -1,0 +1,62 @@
+name: Publicar PWA com violino real
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: scripts/audio-requirements.txt
+      - name: Instalar ferramentas de áudio
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install -r scripts/audio-requirements.txt
+      - name: Preparar arquivos do site
+        run: |
+          mkdir _site
+          cp index.html app.js style.css sw.js manifest.webmanifest icon.svg icon-192.png icon-512.png .nojekyll _site/
+      - uses: actions/cache@v4
+        id: audio-cache
+        with:
+          path: _site/audio
+          key: iowa-arco-mf-v1-${{ hashFiles('scripts/prepare-audio.py', 'scripts/audio-requirements.txt') }}
+      - name: Baixar e validar as 20 notas
+        if: steps.audio-cache.outputs.cache-hit != 'true'
+        run: python scripts/prepare-audio.py --output _site/audio
+      - name: Conferir pacote
+        run: |
+          node --check _site/app.js
+          python -c "import json,pathlib; p=pathlib.Path('_site'); m=json.loads((p/'audio/manifest.json').read_text()); assert len(m)==20; assert all((p/n['url']).stat().st_size>2000 for n in m.values())"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pwa-com-audio
+          path: _site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
