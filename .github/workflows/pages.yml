@@ -28,10 +28,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           python -m pip install -r scripts/audio-requirements.txt
+      - name: Testar fluxo de aprendizagem
+        run: node tests/learning.cjs
       - name: Preparar arquivos do site
         run: |
           mkdir _site
-          cp index.html app.js style.css sw.js manifest.webmanifest icon.svg icon-192.png icon-512.png .nojekyll _site/
+          cp index.html app.js learning.js style.css sw.js manifest.webmanifest icon.svg icon-192.png icon-512.png .nojekyll _site/
       - uses: actions/cache@v4
         id: audio-cache
         with:
@@ -43,6 +45,7 @@ jobs:
       - name: Conferir pacote
         run: |
           node --check _site/app.js
+          node --check _site/learning.js
           python -c "import json,pathlib; p=pathlib.Path('_site'); m=json.loads((p/'audio/manifest.json').read_text()); assert len(m)==20; assert all((p/n['url']).stat().st_size>2000 for n in m.values())"
       - uses: actions/upload-artifact@v4
         with:
