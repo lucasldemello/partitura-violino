@@ -27,10 +27,12 @@ try{$('#show-fingers').checked=localStorage.getItem('arco-show-fingers')==='true
 $('#show-fingers').onchange=()=>{try{localStorage.setItem('arco-show-fingers',String($('#show-fingers').checked))}catch{}renderExerciseStaff()};
 function shuffle(a){return a.sort(()=>Math.random()-.5)}
 function selectedNotes(){return notes.filter(n=>$('#string').value==='all'||n.string===Number($('#string').value))}
-function nextSingle(){if(done>=10)done=0;const pool=selectedNotes();let weighted=pool.flatMap(n=>Array(1+Math.min(stats.errors[n.id]||0,4)).fill(n));let previous=current;do{current=weighted[Math.floor(Math.random()*weighted.length)]}while(current===previous&&pool.length>1);answered=false;$('.training-card').classList.remove('answered');$('#next').hidden=true;$('#feedback').textContent='';$('#hint-text').textContent='';$('#hint').textContent='Posição na pauta';$('#hint').setAttribute('aria-expanded','false');$('#feedback').className='';renderExerciseStaff();$('#exercise-context').textContent=$('#string').value==='all'?'Todas as cordas':'Corda '+stringNames[Number($('#string').value)];const finger=$('#mode').value==='finger';$('#question').textContent=finger?'Qual dedo usar?':'Qual é esta nota?';const key=n=>finger?n.id:n.name;const right=key(current);let alternatives=shuffle(pool.filter(n=>key(n)!==right));let opts=[current];for(const n of alternatives)if(!opts.some(o=>key(o)===key(n))&&opts.length<4)opts.push(n);$('#answers').replaceChildren(...shuffle(opts).map(n=>{let b=document.createElement('button');b.innerHTML=finger?`${n.finger===0?'Corda solta':n.finger+'º dedo'}<small>Corda ${stringNames[n.string]}</small>`:n.name;b.onclick=()=>answer(b,key(n)===right);b.dataset.right=String(key(n)===right);return b}));update()}
+function reviewWeight(n){return 1+2*Math.min(Math.max(Number(stats.errors[n.id])||0,0),6)}
+function pickForReview(pool){let remaining=Math.random()*pool.reduce((sum,n)=>sum+reviewWeight(n),0);for(const n of pool){remaining-=reviewWeight(n);if(remaining<0)return n}return pool[pool.length-1]}
+function nextSingle(){if(done>=10)done=0;const pool=selectedNotes();const alternativesToPrevious=pool.filter(n=>n.id!==current?.id);current=pickForReview(alternativesToPrevious.length?alternativesToPrevious:pool);answered=false;$('.training-card').classList.remove('answered');$('#next').hidden=true;$('#feedback').textContent='';$('#hint-text').textContent='';$('#hint').textContent='Posição na pauta';$('#hint').setAttribute('aria-expanded','false');$('#feedback').className='';renderExerciseStaff();$('#exercise-context').textContent=$('#string').value==='all'?'Todas as cordas':'Corda '+stringNames[Number($('#string').value)];const finger=$('#mode').value==='finger';$('#question').textContent=finger?'Qual dedo usar?':'Qual é esta nota?';const key=n=>finger?n.id:n.name;const right=key(current);let alternatives=shuffle(pool.filter(n=>key(n)!==right));let opts=[current];for(const n of alternatives)if(!opts.some(o=>key(o)===key(n))&&opts.length<4)opts.push(n);$('#answers').replaceChildren(...shuffle(opts).map(n=>{let b=document.createElement('button');b.innerHTML=finger?`${n.finger===0?'Corda solta':n.finger+'º dedo'}<small>Corda ${stringNames[n.string]}</small>`:n.name;b.onclick=()=>answer(b,key(n)===right);b.dataset.right=String(key(n)===right);return b}));update()}
 function answerSingle(button,correct){if(answered)return;answered=true;done++;stats.total++;if(correct){stats.correct++;stats.streak++;stats.errors[current.id]=Math.max(0,(stats.errors[current.id]||0)-1)}else{stats.streak=0;stats.errors[current.id]=(stats.errors[current.id]||0)+1;button.classList.add('wrong')}document.querySelectorAll('#answers button').forEach(b=>{if(b.dataset.right==='true'){b.classList.add('correct');b.innerHTML+=' <span aria-label="resposta correta">✓</span>'}else if(b===button&&!correct){b.innerHTML+=' <span aria-label="resposta incorreta">✕</span>'}b.disabled=true});$('.training-card').classList.add('answered');$('#feedback').className=correct?'result-correct':'result-wrong';$('#feedback').textContent=(correct?'Muito bem! ':'Vamos memorizar: ')+`${staffPosition(current)} · ${current.name}${current.octave} · corda ${stringNames[current.string]} · ${current.finger===0?'solta':current.finger+'º dedo'}.`;$('#next').textContent=done===10?'Sessão concluída · Treinar mais →':'Próxima nota →';$('#next').hidden=false;persist();update()}
 function stopPhraseAudio(){phraseAudioToken++;if(activeRecording){activeRecording.pause();activeRecording=null}playRequest++}
-function next(){stopPhraseAudio();if(isPhrase)startPhrase();else nextSingle()}
+function next(auto=true){stopPhraseAudio();if(isPhrase)startPhrase();else nextSingle();if(auto&&$('#auto-play').checked&&document.body.dataset.tab==='practice'){if(isPhrase)playPhrase();else play(current)}}
 function answer(button,correct){if(!isPhrase)return answerSingle(button,correct);answerPhrase(button)}
 function phraseStaff(showFinger){
  const width=480,spacing=310/phrase.length;
@@ -45,9 +47,12 @@ function phraseStaff(showFinger){
 function startPhrase(){
  if(done>=10)done=0;update();
  phraseFinished=false;phraseIndex=0;phraseAttempts=[];
- const string=$('#string').value==='all'?Math.floor(Math.random()*4):Number($('#string').value);
- const pool=notes.filter(n=>n.string===string);let index=Math.floor(Math.random()*5);
- phrase=Array.from({length:Number($('#phrase-size').value)||2},(_,i)=>{if(i)index=Math.max(0,Math.min(4,index+[-1,0,1][Math.floor(Math.random()*3)]));return pool[index]});
+ const anchor=pickForReview(selectedNotes());
+ const pool=notes.filter(n=>n.string===anchor.string);
+ const length=Number($('#phrase-size').value)||2,anchorPosition=Math.floor(Math.random()*length);
+ phrase=Array(length);phrase[anchorPosition]=anchor;
+ for(let i=anchorPosition+1;i<length;i++)phrase[i]=pickForReview(pool.filter(n=>Math.abs(n.finger-phrase[i-1].finger)<=1));
+ for(let i=anchorPosition-1;i>=0;i--)phrase[i]=pickForReview(pool.filter(n=>Math.abs(n.finger-phrase[i+1].finger)<=1));
  renderPhraseQuestion();
 }
 function renderPhraseQuestion(){
@@ -78,6 +83,8 @@ async function playPhrase(){
 function setExerciseKind(value){
  stopPhraseAudio();isPhrase=value;$('#single-mode').setAttribute('aria-pressed',String(!value));$('#phrase-mode').setAttribute('aria-pressed',String(value));$('#phrase-size-option').hidden=!value;$('#phrase-instruction').hidden=!value;$('#play').textContent=value?'▶ Ouvir frase':'▶ Ouvir nota';next();
 }
+try{$('#auto-play').checked=localStorage.getItem('arco-auto-play')==='true'}catch{}
+$('#auto-play').onchange=()=>{try{localStorage.setItem('arco-auto-play',String($('#auto-play').checked))}catch{}if(!$('#auto-play').checked)stopPhraseAudio();else if(document.body.dataset.tab==='practice'){if(isPhrase)playPhrase();else play(current)}};
 $('#single-mode').onclick=()=>setExerciseKind(false);$('#phrase-mode').onclick=()=>setExerciseKind(true);$('#phrase-size').onchange=next;
 let recordingManifest=null, activeRecording=null, playRequest=0;
 const recordingsReady=fetch('./audio/manifest.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('No recordings');return r.json()}).then(m=>{recordingManifest=m;$('#audio-status').textContent='Gravações reais de violino · University of Iowa';return m}).catch(()=>null);
@@ -103,4 +110,4 @@ $('#reset').onclick=()=>{if(confirm('Zerar o progresso salvo neste navegador?'))
 let installPrompt;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('#install').hidden=false});$('#install').onclick=async()=>{if(installPrompt){await installPrompt.prompt();installPrompt=null;$('#install').hidden=true}};
 function renderStudy(){const pool=selectedNotes();$('#study-title').textContent=$('#string').value==='all'?'Consultar notas do treino':'Consultar notas · corda '+stringNames[Number($('#string').value)];$('#study-notes').replaceChildren(...pool.map(n=>{let b=document.createElement('button');b.innerHTML=staff(n,true).replace('viewBox="0 0 480 205"','viewBox="45 5 275 200"')+`<strong>${n.name}${n.octave}</strong><small>${stringNames[n.string]} · ${n.finger===0?'Solta':n.finger+'º dedo'}</small>`;b.onclick=()=>{stopPhraseAudio();play(n)};return b}));}
 document.body.dataset.tab='practice';renderMap();renderStudy();
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});next();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});next(false);
