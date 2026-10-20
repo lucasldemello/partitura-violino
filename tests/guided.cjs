@@ -18,3 +18,5 @@ M.round(s);s.queue[1]=s.queue[0];M.answer(s,s.queue[0]);M.next(s);M.answer(s,s.q
 const restored=M.restore(JSON.stringify(s));assert.equal(restored.stage,5);assert.equal(restored.visited,5);assert.equal(restored.phase,'home');assert.deepEqual(restored.history,s.history);
 assert.deepEqual(M.restore('{oops'),M.fresh());assert.deepEqual(M.restore('{"version":1,"stage":20}'),M.fresh());
 console.log('Guided path: balanced rounds, isolated string, support, recent errors, progression and reload passed.');
+
+assert.equal(M.restore(JSON.stringify({...M.fresh(),stage:2,visited:5,returnStage:5})).stage,5,'experiment reload restores advanced stage');

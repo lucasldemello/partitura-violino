@@ -29,3 +29,16 @@ body[data-tab="guided"] nav,body[data-tab="guided"] .study-controls{display:none
 #back-to-guide{margin:8px 0 12px;min-height:44px;background:transparent;border:0;color:#244d40;font:inherit;text-decoration:underline}
 @media(max-width:720px){body[data-tab="guided"] main{padding:0 16px max(14px,env(safe-area-inset-bottom));min-height:calc(100svh - 40px)}#guided{min-height:calc(100svh - 62px)}.g-top{letter-spacing:.7px}.g-path{padding:17px}}
 @media(max-height:690px){#guided{gap:6px}.g-subtitle{margin-bottom:8px;font-size:14px}.g-question-staff svg{height:150px}.g-note svg{height:130px}.g-pair svg{height:108px}.g-answers{margin-top:8px;gap:8px}#guided .g-answers button{min-height:48px}.g-note p{font-size:13px}.g-position-rule{margin:9px 0}.g-path{margin:10px 0}.g-feedback{margin:4px 0 8px}.g-note strong{font-size:24px}}
+.g-lesson-staff{position:relative;width:100%;max-width:440px;margin:14px auto 0;aspect-ratio:360 / 225;background:white;border-radius:16px}
+.g-lesson-staff svg{display:block;width:100%;height:100%;overflow:visible}
+.g-lesson-staff .g-anchor{stroke:#b27624;stroke-width:3}
+.g-moving-note{transition:transform 900ms ease-in-out}.g-moving-note.is-mi{transform:translateY(-15px)}
+.g-lesson-name{text-align:center;font-size:28px;font-weight:700;margin:0}.g-lesson-name span{display:block;font-size:15px;font-weight:400;margin-top:6px}
+#guided .g-note-target{position:absolute;width:56px;height:56px;min-height:56px;padding:0;transform:translate(-50%,-50%);background:transparent;border:2px solid transparent;border-radius:50%}
+#guided .g-note-target:focus-visible{outline:3px solid #b27624}#guided .g-touch-tried{border-style:dashed;border-color:#a17a40}#guided .g-touch-correct{border-color:#244d40;background:#244d4012}
+.g-touch-feedback{font-size:16px;line-height:1.5;margin:16px 0}
+@media(prefers-reduced-motion:reduce){.g-moving-note{transition:none}}
+@media(max-height:690px){.g-lesson-staff{margin-top:8px;max-width:340px}.g-lesson-name{font-size:24px}}
+/* The heading names the note; keep the change announcement without a duplicate label. */
+.g-lesson-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.g-lesson-staff + .g-lesson-name + .g-options{margin:0}
