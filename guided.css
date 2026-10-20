@@ -1,0 +1,31 @@
+/* Guided learning has its own compact mobile surface. */
+body[data-tab="guided"] main{max-width:620px;padding:0 16px 20px;height:auto;min-height:calc(100svh - 62px)}
+body[data-tab="guided"] footer{display:none}
+body[data-tab="guided"] nav,body[data-tab="guided"] .study-controls{display:none!important}
+#guided{display:flex;flex-direction:column;min-height:calc(100svh - 90px);gap:12px;padding:10px 0}
+#guided[hidden],#back-to-guide[hidden]{display:none!important}
+#guided button,#guided select,#guided summary{min-height:46px;font:inherit;cursor:pointer}
+#guided button{border:1px solid #cdd8cf;border-radius:13px;padding:10px 16px;background:#fff;color:#244d40}
+#guided button:focus-visible,#guided select:focus-visible,#guided summary:focus-visible{outline:3px solid #b77b2c;outline-offset:3px}
+#guided h1{font-size:clamp(25px,6.5vw,34px);line-height:1.12;margin:0 0 10px;letter-spacing:-.7px}
+#guided h1:focus{outline:none}
+#guided h2{font-size:23px;line-height:1.2;margin:10px 0}
+.g-top{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;letter-spacing:1.2px;font-weight:700}
+#guided .g-exit{border:0;background:transparent;font-size:13px;padding:6px 0 6px 12px}
+.g-content{flex:1;min-height:0}.g-subtitle{font-size:15px;line-height:1.5;margin:0 0 14px;color:#53645a}
+.g-actions{display:grid;gap:8px;margin-top:auto}
+#guided .g-primary{background:#244d40;color:#fff;border-color:#244d40;font-weight:700}
+#guided .g-secondary{background:transparent}
+.g-path{background:#edf1e6;border:1px solid #d9e1d2;border-radius:18px;padding:20px;margin:18px 0}
+.g-path>span{font-size:11px;letter-spacing:1.5px}.g-path p{font-size:15px;line-height:1.5;margin:10px 0 0}
+.g-options{font-size:14px;margin:10px 0}.g-options summary{display:flex;align-items:center;text-decoration:underline;list-style:none}.g-options label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0}.g-options select{width:100%;background:white;border:1px solid #bdcbbf;border-radius:10px;padding:8px}.g-options input{width:22px;height:22px}.g-options p{font-size:13px;color:#53645a}
+.g-note{text-align:center;background:#fff;border:1px solid #e0e5dc;border-radius:16px;padding:4px 10px 12px}
+.g-note svg{display:block;width:100%;height:165px}.g-note strong{font-size:27px}.g-note small{font-size:15px;font-weight:400;margin-left:3px}.g-note p{font-size:14px;line-height:1.4;margin:6px 0 0}
+.g-finger{text-align:center;font-size:15px;margin:14px 0}.g-position-rule{font-size:14px;line-height:1.5;color:#53645a;margin:14px 0}
+.g-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g-pair .g-note{padding:4px 6px 10px}.g-pair svg{height:135px}.g-pair .g-note p{min-height:40px}
+.g-question-staff svg{display:block;width:100%;height:190px}.g-support{display:flex;justify-content:center;gap:12px}#guided .g-support button{background:transparent;border:0;text-decoration:underline}
+.g-answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}#guided .g-answers button{min-height:56px;font-size:21px;font-weight:600}
+.g-help{font-size:14px;line-height:1.4;background:#edf1e6;border-radius:10px}.g-help:not(:empty){padding:10px;margin:8px 0}.g-audio-status{font-size:11px;line-height:1.4;color:#53645a;text-align:center;margin-top:4px}.g-feedback{font-size:17px;line-height:1.4;margin:4px 0 14px}
+#back-to-guide{margin:8px 0 12px;min-height:44px;background:transparent;border:0;color:#244d40;font:inherit;text-decoration:underline}
+@media(max-width:720px){body[data-tab="guided"] main{padding:0 16px max(14px,env(safe-area-inset-bottom));min-height:calc(100svh - 40px)}#guided{min-height:calc(100svh - 62px)}.g-top{letter-spacing:.7px}.g-path{padding:17px}}
+@media(max-height:690px){#guided{gap:6px}.g-subtitle{margin-bottom:8px;font-size:14px}.g-question-staff svg{height:150px}.g-note svg{height:130px}.g-pair svg{height:108px}.g-answers{margin-top:8px;gap:8px}#guided .g-answers button{min-height:48px}.g-note p{font-size:13px}.g-position-rule{margin:9px 0}.g-path{margin:10px 0}.g-feedback{margin:4px 0 8px}.g-note strong{font-size:24px}}

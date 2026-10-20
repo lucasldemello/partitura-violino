@@ -1,0 +1,61 @@
+"""Exercise the deployed Pages package under its real subpath on mobile."""
+import argparse, functools, http.server, json, pathlib, threading
+from playwright.sync_api import sync_playwright
+p=argparse.ArgumentParser();p.add_argument('--site',default='_site');args=p.parse_args()
+site=pathlib.Path(args.site).resolve();screens=pathlib.Path('test-artifacts');screens.mkdir(exist_ok=True)
+handler=functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(site.parent))
+server=http.server.ThreadingHTTPServer(('127.0.0.1',0),handler);threading.Thread(target=server.serve_forever,daemon=True).start()
+url=f'http://127.0.0.1:{server.server_port}/{site.name}/'
+manifest=json.loads((site/'audio/manifest.json').read_text());assert len(manifest)==20
+with sync_playwright() as pw:
+ browser=pw.chromium.launch()
+ for width,height in [(360,640),(390,740)]:
+  context=browser.new_context(viewport={'width':width,'height':height},is_mobile=True,has_touch=True)
+  page=context.new_page();errors=[];page.on('pageerror',lambda error:errors.append(str(error)))
+  page.goto(url);page.get_by_role('button',name='Aprender estas notas',exact=True).click()
+  assert page.locator('#guided h1').inner_text()=='Conheça Ré'
+  with page.expect_response(lambda r:manifest['1-0']['url'] in r.url and r.status==200):
+   page.get_by_role('button',name='▶ Ouvir Ré',exact=True).click()
+  page.wait_for_function("document.querySelector('#guided .g-audio-status').textContent.includes('Violino real')")
+  page.get_by_role('button',name='Conhecer Mi',exact=True).click()
+  page.get_by_role('button',name='Comparar as duas',exact=True).click()
+  page.screenshot(path=str(screens/f'comparison-{width}.png'))
+  page.get_by_role('button',name='Agora vou reconhecer',exact=True).click()
+  assert page.locator('.g-answers button').count()==2
+  assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+  assert page.locator('.g-answers').bounding_box()['y']+page.locator('.g-answers').bounding_box()['height']<=height
+  page.screenshot(path=str(screens/f'quiz-{width}.png'))
+  page.get_by_role('button',name='Ver apoio',exact=True).click()
+  assert 'Esta é' not in page.locator('.g-help').inner_text()
+  for i in range(6):
+   page.locator('.g-answers button').first.click()
+   if i==0:page.screenshot(path=str(screens/f'feedback-{width}.png'))
+   page.get_by_role('button',name='Fechar esta rodada' if i==5 else 'Próxima nota',exact=True).click()
+  page.get_by_role('button',name='Conhecer Fá♯',exact=True).click()
+  assert 'Fá♯' in page.locator('#guided h1').inner_text()
+  page.reload();assert 'SEU PASSO 2 DE 4' in page.locator('#guided').inner_text()
+  page.get_by_role('button',name='Treino livre · notas e frases',exact=True).click()
+  assert page.locator('#session-home').is_visible()
+  page.get_by_role('button',name='← Aprender com orientação',exact=True).click()
+  assert page.locator('#guided').is_visible()
+  page.evaluate('navigator.serviceWorker.ready');page.wait_for_function('navigator.serviceWorker.controller !== null')
+  context.set_offline(True);page.reload();assert page.locator('#guided h1').is_visible()
+  page.get_by_role('button',name='Aprender estas notas',exact=True).click()
+  page.get_by_role('button',name='▶ Ouvir Ré',exact=True).click()
+  page.wait_for_function("document.querySelector('#guided .g-audio-status').textContent.includes('Violino real')")
+  context.set_offline(False)
+  page.evaluate("localStorage.setItem('arco-guided-v1',JSON.stringify({...JSON.parse(localStorage.getItem('arco-guided-v1')),stage:5,visited:5}))")
+  page.reload();page.get_by_role('button',name='Aprender estas notas',exact=True).click()
+  for name in ['Conhecer Mi','Conhecer Fá♯','Conhecer Sol','Conhecer Lá','Comparar as duas','Agora vou reconhecer']:
+   page.get_by_role('button',name=name,exact=True).click()
+  assert page.locator('.g-answers button').count()==5
+  for button in page.locator('#guided button').all():
+   if button.is_visible():assert button.bounding_box()['height']>=44
+  bounds=page.locator('.g-answers').bounding_box();assert bounds['y']+bounds['height']<=height
+  assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+  page.screenshot(path=str(screens/f'five-notes-{width}.png'))
+  assert not errors,errors
+  context.close()
+ browser.close()
+server.shutdown()
+print('PASS mobile layouts, lesson, support, round, progression, reload, free mode, real audio and offline')
