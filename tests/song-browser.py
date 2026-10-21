@@ -48,8 +48,15 @@ with sync_playwright() as pw:
   assert not page.evaluate("JSON.parse(localStorage.getItem('arco-song-v1')).bars['1'].needsReview")
   page.get_by_role('button',name='Ver minha música',exact=True).click()
   page.get_by_text('Escolher compasso e apoio',exact=True).click();page.locator('#song-select').select_option('23')
+  selected=page.locator('#song-select').input_value()
+  assert selected=='23',{'selected':selected,'errors':errors}
   page.get_by_role('button',name='Começar este compasso',exact=True).click()
-  assert page.locator('#song h1').inner_text()=='Compasso 40'
+  title=page.locator('#song h1').inner_text()
+  if title!='Compasso 40':
+   page.screenshot(path=str(screens/f'song-select-failure-{width}.png'),full_page=True)
+   (screens/f'song-select-failure-{width}.html').write_text(page.content())
+  assert title=='Compasso 40',{'selected':selected,'title':title,'errors':errors}
+
   assert '𝄐' in page.locator('#song-score').inner_text()
   assert page.locator('.song-score-note ellipse[fill="white"]').count()==1
   page.screenshot(path=str(screens/f'song-final-{width}.png'))
