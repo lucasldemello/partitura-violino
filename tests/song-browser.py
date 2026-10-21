@@ -47,7 +47,7 @@ with sync_playwright() as pw:
    page.get_by_role('button',name='Concluir compasso' if i==3 else 'Próxima nota',exact=True).click()
   assert not page.evaluate("JSON.parse(localStorage.getItem('arco-song-v1')).bars['1'].needsReview")
   page.get_by_role('button',name='Ver minha música',exact=True).click()
-  page.get_by_text('Escolher compasso e apoio',exact=True).click();page.locator('#song-select').select_option('23')
+  page.get_by_text('Escolher compasso e apoio',exact=True).click();page.locator('#song-select').select_option(label='40')
   selected=page.locator('#song-select').input_value()
   assert selected=='23',{'selected':selected,'errors':errors}
   page.get_by_role('button',name='Começar este compasso',exact=True).click()
