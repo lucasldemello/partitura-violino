@@ -36,7 +36,7 @@ jobs:
       - name: Preparar arquivos do site
         run: |
           mkdir _site
-          cp index.html app.js learning.js guided-model.js guided.js guided.css song-data.js song.js song.css style.css sw.js manifest.webmanifest icon.svg icon-192.png icon-512.png .nojekyll _site/
+          cp index.html app.js learning.js guided-model.js guided.js guided.css song-data.js song.js song.css reading.js reading.css style.css sw.js manifest.webmanifest icon.svg icon-192.png icon-512.png .nojekyll _site/
       - uses: actions/cache@v4
         id: audio-cache
         with:
@@ -52,6 +52,7 @@ jobs:
           node --check _site/guided.js
           node --check _site/guided-model.js
           node --check _site/song.js
+          node --check _site/reading.js
           node --check _site/song-data.js
           python -c "import json,pathlib; p=pathlib.Path('_site'); m=json.loads((p/'audio/manifest.json').read_text()); assert len(m)==20; assert all((p/n['url']).stat().st_size>2000 for n in m.values())"
       - name: Validar interface mobile e áudio real
@@ -60,6 +61,7 @@ jobs:
           python -m playwright install --with-deps chromium
           python tests/guided-browser.py --site _site
           python tests/song-browser.py --site _site
+          python tests/reading-browser.py --site _site
       - uses: actions/upload-artifact@v4
         if: always()
         with:
