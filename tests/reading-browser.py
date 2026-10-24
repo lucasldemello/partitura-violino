@@ -1,18 +1,16 @@
 """Four-string pitch reading/writing, selection, accidentals, ledger notes and offline."""
 import argparse,functools,http.server,pathlib,threading,json
 from playwright.sync_api import sync_playwright
+from ui_checks import controls_reachable, reachable
 p=argparse.ArgumentParser();p.add_argument('--site',default='_site');a=p.parse_args();site=pathlib.Path(a.site).resolve();out=pathlib.Path('test-artifacts');out.mkdir(exist_ok=True)
 server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(site.parent)));threading.Thread(target=server.serve_forever,daemon=True).start();url=f'http://127.0.0.1:{server.server_port}/{site.name}/';manifest=json.loads((site/'audio/manifest.json').read_text())
 with sync_playwright() as pw:
  browser=pw.chromium.launch()
- for w,h in [(360,640),(740,360)]:
+ for w,h in [(360,640),(667,320),(740,360)]:
   ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=True,has_touch=True);page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto(url);page.get_by_role('button',name='Ler e escrever · cordas',exact=True).click()
   def visible_controls():
-   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
-   for el in page.locator('#reading button').all():
-    if el.is_visible():
-     box=el.bounding_box();assert box['height']>=44;assert box['y']>=0 and box['y']+box['height']<=h,box
+   controls_reachable(page,'#reading button')
   def current():return page.evaluate("notes.find(n=>n.id===document.querySelector('#reading').dataset.noteId)")
   def home():page.get_by_role('button',name='← Meu estudo',exact=True).click()
   def configure(preset,count='2'):

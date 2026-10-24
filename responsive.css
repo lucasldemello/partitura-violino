@@ -1,0 +1,122 @@
+/* Let the document scroll. Staff size is a learning aid, not leftover space. */
+main,main section,.reading-work,.reading-controls,.schmoll-body,.song-content,.g-body{min-width:0}
+#reading button,#schmoll button,#song button,#guided button,nav button,.study-controls button,.study-controls select,.audio-row button,.session-top button{min-height:44px;height:auto}
+#reading summary,#schmoll summary,#song summary,#guided summary{min-height:44px;display:flex;align-items:center;cursor:pointer}
+.schmoll-more{width:100%;font-size:14px}.schmoll-more summary{text-decoration:underline}.schmoll-more button{display:block;width:100%;margin:6px 0}
+#schmoll .schmoll-actions{display:grid;grid-template-columns:1fr;gap:8px}
+#schmoll .schmoll-actions>.schmoll-primary{font-size:16px!important}
+@media(max-width:720px){
+ body[data-tab="practice"] main{height:auto;display:block}
+ #practice,.layout{display:block;min-height:0}
+ .training-card{display:block;overflow:visible;min-height:0}
+ #staff,.training-card.answered #staff,.training-card:has(#comparison-panel:not([hidden])) #staff{height:auto;min-height:180px;max-height:none}
+ #staff svg{height:auto;max-height:none;min-height:180px}
+ .audio-row button,.session-top button,.settings select,.exercise-kind button,.exercise-kind select{min-height:44px;height:auto}
+ .finger-option,.auto-play-option{min-height:44px}
+ #reading[data-screen="exercise"] .reading-staff svg{height:auto;min-height:170px}
+ #schmoll .schmoll-score svg{height:auto;min-height:160px}
+}
+@media(orientation:landscape) and (max-height:600px){
+ body>header{display:none}
+ body main,body[data-tab] main{max-width:1120px;width:100%;height:auto;min-height:0;padding:8px max(14px,env(safe-area-inset-right)) 20px max(14px,env(safe-area-inset-left));display:block}
+ body nav{position:static;height:auto;box-shadow:none;padding:4px 0;margin:0 0 12px}
+ footer{display:none}
+ #reading,#schmoll{grid-template-columns:minmax(0,3fr) minmax(230px,2fr);gap:8px 20px;min-height:0;align-items:start}
+ .reading-top,.schmoll-top{height:auto;min-height:44px}
+ .reading-heading h1,.schmoll-heading h1{font-size:23px}
+ .reading-heading p,.schmoll-heading p{font-size:14px;line-height:1.45}
+ .reading-controls,.schmoll-body{gap:8px;min-width:0}
+ .reading-controls p,.schmoll-body p{font-size:14px;margin:4px 0;line-height:1.45}
+ #reading .reading-staff svg,#schmoll .schmoll-score svg{height:auto;width:100%;min-height:190px;max-height:none}
+ .reading-staff,.schmoll-score{align-self:start;min-width:0}
+ #reading[data-screen="home"]{display:block;max-width:680px;margin:auto}
+ #reading[data-screen="home"] .reading-staff{display:none}
+ #reading[data-screen="home"] .reading-controls{margin-top:16px}
+ #schmoll .schmoll-actions{margin-top:8px;grid-template-columns:1fr;align-self:start}
+ #schmoll .schmoll-actions button{font-size:14px!important;padding:10px 12px!important}
+ .schmoll-pulses{height:190px;gap:12px}.schmoll-pulses span{width:52px;height:52px;flex-shrink:0}
+ #guided{min-height:0;gap:10px}
+ #guided[data-phase="quiz"]{display:grid;grid-template-columns:minmax(0,3fr) minmax(230px,2fr);gap:8px 20px}
+ #guided[data-phase="quiz"] .g-top{grid-column:1 / -1;grid-row:1}
+ #guided[data-phase="quiz"] .g-content,#guided[data-phase="quiz"] .g-body{display:contents}
+ #guided[data-phase="quiz"] h1{grid-column:1;grid-row:2;font-size:25px}
+ #guided[data-phase="quiz"] .g-subtitle{grid-column:1;grid-row:3}
+ #guided[data-phase="quiz"] .g-question-staff{grid-column:1;grid-row:4 / span 5;align-self:start}
+ #guided[data-phase="quiz"] .g-question-staff svg{width:100%;height:auto;min-height:190px}
+ #guided[data-phase="quiz"] .g-support{grid-column:2;grid-row:2}
+ #guided[data-phase="quiz"] .g-help{grid-column:2;grid-row:3}
+ #guided[data-phase="quiz"] .g-audio-status{grid-column:2;grid-row:4}
+ #guided[data-phase="quiz"] .g-answers{grid-column:2;grid-row:5;margin:0}
+ #guided[data-phase="quiz"] .g-actions{grid-column:2;grid-row:6}
+ #guided .g-note svg,#guided .g-pair svg{height:auto;min-height:165px}
+ #guided .g-lesson-staff{max-width:540px}
+ #song[data-view="exercise"]{display:grid;grid-template-columns:minmax(0,3fr) minmax(230px,2fr);gap:8px 20px;min-height:0}
+ #song[data-view="exercise"] .song-top{grid-column:1 / -1;grid-row:1}
+ #song[data-view="exercise"] h1{grid-column:1;grid-row:2;font-size:25px}
+ #song[data-view="exercise"] .song-subtitle{grid-column:1;grid-row:3}
+ #song[data-view="exercise"] .song-content{display:contents}
+ #song[data-view="exercise"] #song-score{grid-column:1;grid-row:4 / span 6;align-self:start}
+ #song #song-score svg{height:auto;max-height:none;min-height:190px}
+ #song[data-view="exercise"] .song-current{grid-column:2;grid-row:2}
+ #song[data-view="exercise"] .song-audio{grid-column:2;grid-row:3;display:grid;grid-template-columns:1fr}
+ #song[data-view="exercise"] .song-audio-status{grid-column:2;grid-row:4}
+ #song[data-view="exercise"] .song-feedback{grid-column:2;grid-row:5}
+ #song[data-view="exercise"] .song-answers{grid-column:2;grid-row:6;grid-template-columns:repeat(2,minmax(0,1fr))}
+ #song[data-view="exercise"] .song-actions{grid-column:2;grid-row:7}
+ #song[data-view="exercise"] .song-help{grid-column:2;grid-row:8}
+ #practice,.layout{display:block;height:auto;min-height:0}
+ .training-card{max-width:none;display:grid;grid-template-columns:minmax(0,3fr) minmax(230px,2fr);gap:8px 20px;overflow:visible;padding:16px;min-height:0}
+ .training-card .session-top,.training-card .card-top{grid-column:1 / -1}
+ .training-card #question,.training-card #phrase-instruction{grid-column:1;margin:0;text-align:left}
+ .training-card #staff,.training-card.answered #staff,.training-card:has(#comparison-panel:not([hidden])) #staff{grid-column:1;grid-row:5 / span 5;height:auto;min-height:200px;max-height:none;margin:0;align-self:start}
+ .training-card #staff svg{height:auto;width:100%;min-height:200px;max-height:none}
+ .training-card .audio-row{grid-column:2;grid-row:3;flex-wrap:wrap}
+ .training-card .audio-meta{grid-column:2;grid-row:4;flex-wrap:wrap}
+ .training-card #hint-text{grid-column:2;grid-row:5}
+ .training-card .answer-area{grid-column:2;grid-row:6;margin:0}
+ .training-card .footnote{grid-column:1 / -1}
+ .study-controls{margin:12px 0}.settings{flex-wrap:wrap}
+ .training-card .answers{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(orientation:landscape) and (max-height:600px){
+ /* The score starts directly below the compact bar. Text never pushes it down. */
+ #reading,#schmoll,#guided[data-phase="quiz"],#song[data-view="exercise"],.training-card{grid-template-columns:minmax(0,1fr) minmax(220px,34%);column-gap:14px}
+ .reading-heading{grid-column:2;grid-row:2}.reading-staff{grid-column:1;grid-row:2 / 5}.reading-controls{grid-column:2;grid-row:3 / 5}
+ .schmoll-heading{grid-column:2;grid-row:2}.schmoll-score{grid-column:1;grid-row:2 / 5}.schmoll-body{grid-column:2;grid-row:3}.schmoll-actions{grid-column:2;grid-row:4}
+ #guided[data-phase="quiz"] h1{grid-column:2;grid-row:2}
+ #guided[data-phase="quiz"] .g-subtitle{grid-column:2;grid-row:3}
+ #guided[data-phase="quiz"] .g-question-staff{grid-column:1;grid-row:2 / 10}
+ #guided[data-phase="quiz"] .g-support{grid-row:4;flex-wrap:wrap}
+ #guided[data-phase="quiz"] .g-help{grid-row:5}
+ #guided[data-phase="quiz"] .g-audio-status{grid-row:6}
+ #guided[data-phase="quiz"] .g-answers{grid-row:7}
+ #guided[data-phase="quiz"] .g-actions{grid-row:8}
+ #song[data-view="exercise"] h1{grid-column:2;grid-row:2}
+ #song[data-view="exercise"] .song-subtitle{grid-column:2;grid-row:3}
+ #song[data-view="exercise"] #song-score{grid-column:1;grid-row:2 / 12}
+ #song[data-view="exercise"] .song-current{grid-row:4}
+ #song[data-view="exercise"] .song-audio{grid-row:5}
+ #song[data-view="exercise"] .song-audio-status{grid-row:6}
+ #song[data-view="exercise"] .song-feedback{grid-row:7}
+ #song[data-view="exercise"] .song-answers{grid-row:8}
+ #song[data-view="exercise"] .song-actions{grid-row:9}
+ #song[data-view="exercise"] .song-help{grid-row:10}
+ .training-card #staff,.training-card.answered #staff,.training-card:has(#comparison-panel:not([hidden])) #staff{grid-row:3 / 11}
+ .training-card #question{grid-column:2;grid-row:3}
+ .training-card #phrase-instruction{grid-column:2;grid-row:4}
+ .training-card .audio-row{grid-row:5}.training-card .audio-meta{grid-row:6}
+ .training-card #hint-text{grid-row:7}.training-card .answer-area{grid-row:8}
+}
+@media(orientation:landscape) and (max-height:600px){
+ #song[data-view="exercise"] .song-current{grid-row:3}
+ #song[data-view="exercise"] .song-feedback{grid-row:4}
+ #song[data-view="exercise"] .song-answers{grid-row:5;grid-template-columns:repeat(3,minmax(0,1fr))}
+ #song[data-view="exercise"] .song-actions{grid-row:6}
+ #song[data-view="exercise"] .song-subtitle{grid-row:7}
+ #song[data-view="exercise"] .song-audio{grid-row:8}
+ #song[data-view="exercise"] .song-audio-status{grid-row:9}
+ #song[data-view="exercise"] .song-help{grid-row:10}
+}
+@media(orientation:landscape) and (max-height:600px) and (max-aspect-ratio:5/2){
+ .reading-staff,.schmoll-score,#guided[data-phase="quiz"] .g-question-staff,#song[data-view="exercise"] #song-score,.training-card #staff{position:sticky;top:8px}
+}

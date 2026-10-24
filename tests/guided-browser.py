@@ -1,6 +1,7 @@
 """Exercise the deployed Pages package under its real subpath on mobile."""
 import argparse, functools, http.server, json, pathlib, threading
 from playwright.sync_api import sync_playwright
+from ui_checks import controls_reachable, reachable
 p=argparse.ArgumentParser();p.add_argument('--site',default='_site');args=p.parse_args()
 site=pathlib.Path(args.site).resolve();screens=pathlib.Path('test-artifacts');screens.mkdir(exist_ok=True)
 handler=functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(site.parent))
@@ -17,7 +18,7 @@ with sync_playwright() as pw:
   with page.expect_response(lambda r:manifest['1-0']['url'] in r.url and r.status==200):
    page.get_by_role('button',name='▶ Ouvir Ré',exact=True).click()
   page.wait_for_function("document.querySelector('#guided .g-audio-status').textContent.includes('Violino real')")
-  cta=page.get_by_role('button',name='Ver a nota subir para Mi',exact=True).bounding_box();assert cta['y']+cta['height']<=height
+  reachable(page,page.get_by_role('button',name='Ver a nota subir para Mi',exact=True))
   page.screenshot(path=str(screens/f'discovery-re-{width}.png'))
   page.get_by_role('button',name='Ver a nota subir para Mi',exact=True).click()
   assert page.locator('.g-moving-note.is-mi').count()==1
@@ -33,7 +34,7 @@ with sync_playwright() as pw:
   assert page.locator('.g-note-target').count()==2
   assert not page.evaluate("JSON.parse(localStorage.getItem('arco-guided-v1')).results.length")
   page.locator('.g-note-target[data-note="1-1"]').focus();page.keyboard.press('Enter')
-  cta=page.get_by_role('button',name='Tentar sem destaque',exact=True).bounding_box();assert cta['y']+cta['height']<=height
+  reachable(page,page.get_by_role('button',name='Tentar sem destaque',exact=True))
   page.screenshot(path=str(screens/f'touch-line-{width}.png'))
   page.get_by_role('button',name='Tentar sem destaque',exact=True).click()
   assert page.locator('.g-anchor').count()==0
@@ -42,7 +43,7 @@ with sync_playwright() as pw:
   page.get_by_role('button',name='Agora reconhecer os nomes',exact=True).click()
   assert page.locator('.g-answers button').count()==2
   assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-  assert page.locator('.g-answers').bounding_box()['y']+page.locator('.g-answers').bounding_box()['height']<=height
+  controls_reachable(page,'.g-answers button')
   page.screenshot(path=str(screens/f'quiz-{width}.png'))
   page.get_by_role('button',name='Ver apoio',exact=True).click()
   assert 'Esta é' not in page.locator('.g-help').inner_text()
@@ -82,7 +83,7 @@ with sync_playwright() as pw:
   assert page.locator('.g-answers button').count()==5
   for button in page.locator('#guided button').all():
    if button.is_visible():assert button.bounding_box()['height']>=44
-  bounds=page.locator('.g-answers').bounding_box();assert bounds['y']+bounds['height']<=height
+  controls_reachable(page,'.g-answers button')
   assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
   page.screenshot(path=str(screens/f'five-notes-{width}.png'))
   page.get_by_role('button',name='Pausar',exact=True).click()

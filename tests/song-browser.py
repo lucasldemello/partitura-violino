@@ -1,6 +1,7 @@
 """Song UI regression: mobile score, real recording, stop, review, and offline."""
 import argparse, functools, http.server, json, pathlib, threading
 from playwright.sync_api import sync_playwright
+from ui_checks import controls_reachable, reachable
 p=argparse.ArgumentParser();p.add_argument('--site',default='_site');args=p.parse_args()
 site=pathlib.Path(args.site).resolve();screens=pathlib.Path('test-artifacts');screens.mkdir(exist_ok=True)
 server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(site.parent)))
@@ -15,10 +16,10 @@ with sync_playwright() as pw:
   page.evaluate("localStorage.setItem('arco-learning-v1',JSON.stringify({sentinel:'preserve'}))")
   page.get_by_role('button',name='Minha música · Brilha, estrelinha',exact=True).click()
   assert 'cordas Lá e Mi' in page.locator('#song').inner_text()
-  cta=page.get_by_role('button',name='Começar este compasso',exact=True).bounding_box();assert cta['y']+cta['height']<=height
+  reachable(page,page.get_by_role('button',name='Começar este compasso',exact=True))
   page.get_by_role('button',name='Começar este compasso',exact=True).click()
   assert page.locator('.song-answers button').count()==6
-  bounds=page.locator('.song-answers').bounding_box();assert bounds['y']+bounds['height']<=height
+  controls_reachable(page,'.song-answers button')
   assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
   page.screenshot(path=str(screens/f'song-quiz-{width}.png'))
   with page.expect_response(lambda r:manifest['2-0']['url'] in r.url and r.status==200):
@@ -37,7 +38,7 @@ with sync_playwright() as pw:
    page.locator('.song-answers').get_by_role('button',name=name,exact=True).click()
    if i==0:
     page.screenshot(path=str(screens/f'song-feedback-{width}.png'))
-    cta=page.get_by_role('button',name='Próxima nota',exact=True).bounding_box();assert cta['y']+cta['height']<=height
+    reachable(page,page.get_by_role('button',name='Próxima nota',exact=True))
    page.get_by_role('button',name='Concluir compasso' if i==3 else 'Próxima nota',exact=True).click()
   assert page.evaluate("JSON.parse(localStorage.getItem('arco-song-v1')).bars['1'].needsReview")
   page.get_by_role('button',name='Ver minha música',exact=True).click()

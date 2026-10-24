@@ -37,7 +37,7 @@
   choices.forEach((id,i)=>{const x=i===0?158:276,y=id==='1-0'?165:150;svgEl.insertAdjacentHTML('beforeend',`<g><ellipse cx="${x}" cy="${y}" rx="13" ry="9" transform="rotate(-18 ${x} ${y})" fill="#244d40"/><line x1="${x+12}" x2="${x+12}" y1="${y-4}" y2="${y-66}" stroke="#244d40" stroke-width="2"/></g>`);const b=button('',()=>{if(finished)return;const feedback=root.querySelector('.g-touch-feedback');if(id!==correct){feedback.textContent=first?'Essa nota está abaixo. Procure a nota atravessada pela linha.':'Essa nota está na linha. Procure a que fica logo abaixo.';b.classList.add('g-touch-tried');return}finished=true;b.classList.add('g-touch-correct');feedback.textContent=first?'Isso. A linha atravessa o meio da nota.':'Isso. A nota está no espaço logo abaixo da pauta.';action(first?'Tentar sem destaque':'Agora reconhecer os nomes',()=>{if(first){state.touchStep=1;commit()}else start()})},'g-note-target');b.setAttribute('aria-label',i===0?'Nota à esquerda':'Nota à direita');b.dataset.note=id;b.style.left=`${x/360*100}%`;b.style.top=`${y/225*100}%`;canvas.append(b)});
  }
  function render(){
-  const p=state.phase;
+  const p=state.phase;root.dataset.phase=p;
   if(p==='present'&&state.stage===2){renderFirstLesson();root.querySelector('h1')?.focus({preventScroll:true});return}
   if(p==='touch'){renderTouch();root.querySelector('h1')?.focus({preventScroll:true});return}
   if(p==='home'){
