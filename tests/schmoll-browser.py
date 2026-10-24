@@ -7,7 +7,7 @@ with sync_playwright() as pw:
  browser=pw.chromium.launch()
  for w,h in [(360,640),(740,360)]:
   ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=True,has_touch=True);page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
-  page.goto(url);page.evaluate("window.schmollHeard=[];window.schmollOnsets=[];const priorPlay=play;play=async function(n){window.schmollHeard.push(n.id);window.schmollOnsets.push(performance.now());return priorPlay(n)}")
+  page.goto(url);page.evaluate("() => { window.schmollHeard=[];window.schmollOnsets=[];const priorPlay=play;play=async function(n){window.schmollHeard.push(n.id);window.schmollOnsets.push(performance.now());return priorPlay(n)}; }")
   page.get_by_role('button',name='Schmoll 24 · Ré e Mi',exact=True).click()
   def controls_fit():
    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
