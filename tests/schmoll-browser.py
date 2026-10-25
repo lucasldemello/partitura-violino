@@ -1,7 +1,7 @@
 """Schmoll experiment: separate reading/rhythm/model/check; real sound, neutral score."""
 import argparse,functools,http.server,pathlib,threading
 from playwright.sync_api import sync_playwright
-from ui_checks import controls_reachable, reachable
+from ui_checks import controls_reachable, reachable, open_mode
 p=argparse.ArgumentParser();p.add_argument('--site',default='_site');a=p.parse_args();site=pathlib.Path(a.site).resolve();out=pathlib.Path('test-artifacts');out.mkdir(exist_ok=True)
 server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(site.parent)));threading.Thread(target=server.serve_forever,daemon=True).start();url=f'http://127.0.0.1:{server.server_port}/{site.name}/'
 with sync_playwright() as pw:
@@ -9,7 +9,7 @@ with sync_playwright() as pw:
  for w,h in [(360,640),(667,320),(740,360)]:
   ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=True,has_touch=True);page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto(url);page.evaluate("() => { window.schmollHeard=[];window.schmollOnsets=[];const priorPlay=play;play=async function(n){window.schmollHeard.push(n.id);window.schmollOnsets.push(performance.now());return priorPlay(n)}; }")
-  page.get_by_role('button',name='Schmoll 24 · Ré e Mi',exact=True).click()
+  open_mode(page,'schmoll')
   def controls_fit():
    controls_reachable(page,'#schmoll button')
   controls_fit();assert page.locator('.schmoll-badge.with-color').count()==1
@@ -36,9 +36,9 @@ with sync_playwright() as pw:
   page.get_by_text('Mais opções',exact=True).click();page.get_by_role('button',name='← Etapa anterior',exact=True).click();page.evaluate('window.schmollHeard=[]');page.get_by_role('button',name='▶ Ouvir o modelo',exact=True).click();page.wait_for_function('window.schmollHeard.length===1')
   page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'));delete document.hidden")
   page.wait_for_timeout(800);assert page.evaluate('window.schmollHeard.length')==1
-  page.get_by_role('button',name='← Sair',exact=True).click();assert page.locator('#guided').is_visible()
+  page.get_by_role('button',name='← Sair',exact=True).click();assert page.locator('#study-menu').is_visible()
   page.evaluate('navigator.serviceWorker.ready');page.wait_for_function('navigator.serviceWorker.controller!==null');ctx.set_offline(True);page.reload()
-  page.get_by_role('button',name='Schmoll 24 · Ré e Mi',exact=True).click();page.get_by_role('button',name='▶ Ouvir Ré · Mi · Ré · Mi',exact=True).click();page.wait_for_function("document.querySelector('.schmoll-audio-status').textContent.includes('Violino real')")
-  page.get_by_role('button',name='← Sair',exact=True).click();assert page.locator('#guided').is_visible();assert not errors,errors;ctx.close()
+  open_mode(page,'schmoll');page.get_by_role('button',name='▶ Ouvir Ré · Mi · Ré · Mi',exact=True).click();page.wait_for_function("document.querySelector('.schmoll-audio-status').textContent.includes('Violino real')")
+  page.get_by_role('button',name='← Sair',exact=True).click();assert page.locator('#study-menu').is_visible();assert not errors,errors;ctx.close()
  browser.close()
 server.shutdown();print('PASS Schmoll stages,rhythm/model sequences,cancel,visibility,neutral score,selfreport,mobile,offline')

@@ -1,7 +1,7 @@
 """Exercise the deployed Pages package under its real subpath on mobile."""
 import argparse, functools, http.server, json, pathlib, threading
 from playwright.sync_api import sync_playwright
-from ui_checks import controls_reachable, reachable
+from ui_checks import controls_reachable, reachable, open_mode
 p=argparse.ArgumentParser();p.add_argument('--site',default='_site');args=p.parse_args()
 site=pathlib.Path(args.site).resolve();screens=pathlib.Path('test-artifacts');screens.mkdir(exist_ok=True)
 handler=functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(site.parent))
@@ -13,7 +13,7 @@ with sync_playwright() as pw:
  for width,height in [(360,640),(390,740)]:
   context=browser.new_context(viewport={'width':width,'height':height},is_mobile=True,has_touch=True)
   page=context.new_page();errors=[];page.on('pageerror',lambda error:errors.append(str(error)))
-  page.goto(url);page.get_by_role('button',name='Aprender estas notas',exact=True).click()
+  page.goto(url);open_mode(page,'guided')
   assert page.locator('#guided h1').inner_text()=='Ré fica abaixo da pauta'
   with page.expect_response(lambda r:manifest['1-0']['url'] in r.url and r.status==200):
    page.get_by_role('button',name='▶ Ouvir Ré',exact=True).click()
@@ -65,19 +65,19 @@ with sync_playwright() as pw:
   assert 'Vamos comparar' in page.locator('#guided').inner_text()
   page.get_by_role('button',name='Conhecer Fá♯',exact=True).click()
   assert 'Fá♯' in page.locator('#guided h1').inner_text()
-  page.reload();assert 'SEU PASSO 2 DE 4' in page.locator('#guided').inner_text()
-  page.get_by_role('button',name='Treino livre · notas e frases',exact=True).click()
+  page.reload();assert page.evaluate("JSON.parse(localStorage.getItem('arco-guided-v1')).stage")==3
+  open_mode(page,'free')
   assert page.locator('#session-home').is_visible()
-  page.get_by_role('button',name='← Aprender com orientação',exact=True).click()
-  assert page.locator('#guided').is_visible()
+  page.get_by_role('button',name='← Menu inicial',exact=True).click()
+  assert page.locator('#study-menu').is_visible()
   page.evaluate('navigator.serviceWorker.ready');page.wait_for_function('navigator.serviceWorker.controller !== null')
-  context.set_offline(True);page.reload();assert page.locator('#guided h1').is_visible()
-  page.get_by_role('button',name='Aprender estas notas',exact=True).click()
+  context.set_offline(True);page.reload();assert page.locator('#study-menu h1').is_visible()
+  open_mode(page,'guided')
   page.get_by_role('button',name='▶ Ouvir Ré',exact=True).click()
   page.wait_for_function("document.querySelector('#guided .g-audio-status').textContent.includes('Violino real')")
   context.set_offline(False)
   page.evaluate("localStorage.setItem('arco-guided-v1',JSON.stringify({...JSON.parse(localStorage.getItem('arco-guided-v1')),stage:5,visited:5}))")
-  page.reload();page.get_by_role('button',name='Aprender estas notas',exact=True).click()
+  page.reload();open_mode(page,'guided')
   for name in ['Conhecer Mi','Conhecer Fá♯','Conhecer Sol','Conhecer Lá','Comparar as duas','Agora vou reconhecer']:
    page.get_by_role('button',name=name,exact=True).click()
   assert page.locator('.g-answers button').count()==5
@@ -87,9 +87,7 @@ with sync_playwright() as pw:
   assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
   page.screenshot(path=str(screens/f'five-notes-{width}.png'))
   page.get_by_role('button',name='Pausar',exact=True).click()
-  page.get_by_role('button',name='Experimentar Ré e Mi',exact=True).click()
-  assert page.locator('#guided h1').inner_text()=='Ré fica abaixo da pauta'
-  page.reload();assert 'SEU PASSO 4 DE 4' in page.locator('#guided').inner_text()
+  page.reload();assert page.evaluate("JSON.parse(localStorage.getItem('arco-guided-v1')).stage")==5
   assert not errors,errors
   context.close()
  browser.close()

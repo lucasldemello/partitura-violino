@@ -1,7 +1,7 @@
 """Song UI regression: mobile score, real recording, stop, review, and offline."""
 import argparse, functools, http.server, json, pathlib, threading
 from playwright.sync_api import sync_playwright
-from ui_checks import controls_reachable, reachable
+from ui_checks import controls_reachable, reachable, open_mode
 p=argparse.ArgumentParser();p.add_argument('--site',default='_site');args=p.parse_args()
 site=pathlib.Path(args.site).resolve();screens=pathlib.Path('test-artifacts');screens.mkdir(exist_ok=True)
 server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(site.parent)))
@@ -14,7 +14,7 @@ with sync_playwright() as pw:
   page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto(url)
   page.evaluate("localStorage.setItem('arco-learning-v1',JSON.stringify({sentinel:'preserve'}))")
-  page.get_by_role('button',name='Minha música · Brilha, estrelinha',exact=True).click()
+  open_mode(page,'song')
   assert 'cordas Lá e Mi' in page.locator('#song').inner_text()
   reachable(page,page.get_by_role('button',name='Começar este compasso',exact=True))
   page.get_by_role('button',name='Começar este compasso',exact=True).click()
@@ -68,7 +68,7 @@ with sync_playwright() as pw:
   assert page.evaluate("JSON.parse(localStorage.getItem('arco-learning-v1')).sentinel")=='preserve'
   page.evaluate('navigator.serviceWorker.ready');page.wait_for_function('navigator.serviceWorker.controller !== null')
   context.set_offline(True);page.reload()
-  page.get_by_role('button',name='Minha música · Brilha, estrelinha',exact=True).click()
+  open_mode(page,'song')
   assert '1 de 24 compassos praticados' in page.locator('#song').inner_text()
   page.get_by_role('button',name='Começar este compasso',exact=True).click()
   page.get_by_role('button',name='▶ Compasso',exact=True).click()

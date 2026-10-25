@@ -37,7 +37,7 @@ jobs:
       - name: Preparar arquivos do site
         run: |
           mkdir _site
-          cp index.html app.js learning.js guided-model.js guided.js guided.css song-data.js song.js song.css reading.js reading-model.js reading.css schmoll.js schmoll.css responsive.css style.css sw.js manifest.webmanifest icon.svg icon-192.png icon-512.png .nojekyll _site/
+          cp index.html app.js learning.js guided-model.js guided.js guided.css song-data.js song.js song.css reading.js reading-model.js reading.css schmoll.js schmoll.css responsive.css study-menu.js study-menu.css style.css sw.js manifest.webmanifest icon.svg icon-192.png icon-512.png .nojekyll _site/
       - uses: actions/cache@v4
         id: audio-cache
         with:
@@ -55,6 +55,7 @@ jobs:
           node --check _site/song.js
           node --check _site/reading.js
           node --check _site/schmoll.js
+          node --check _site/study-menu.js
           node --check _site/reading-model.js
           node --check _site/song-data.js
           python -c "import json,pathlib; p=pathlib.Path('_site'); m=json.loads((p/'audio/manifest.json').read_text()); assert len(m)==20; assert all((p/n['url']).stat().st_size>2000 for n in m.values())"
@@ -67,6 +68,7 @@ jobs:
           python tests/reading-browser.py --site _site
           python tests/schmoll-browser.py --site _site
           python tests/ux-browser.py --site _site
+          python tests/menu-browser.py --site _site
       - uses: actions/upload-artifact@v4
         if: always()
         with:

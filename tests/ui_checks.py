@@ -13,3 +13,17 @@ def controls_reachable(page,selector):
     for el in page.locator(selector).all():
         if el.is_visible():reachable(page,el)
     page.evaluate('window.scrollTo(0,0)')
+
+def open_mode(page,mode):
+    """Use the public three-path menu; activity tests keep their original depth."""
+    page.evaluate('ArcoStudyMenu.home()')
+    if mode=='song':
+        page.get_by_role('button',name='Música',exact=True).click();return
+    if mode=='free':
+        page.get_by_role('button',name='Treino livre',exact=True).click();return
+    page.locator('#study-menu .menu-primary').click()
+    if mode=='reading':
+        page.get_by_role('button',name='Ler e escrever',exact=True).click();return
+    page.locator('#study-string').select_option(value='1')
+    page.get_by_text('Outras formas de estudar Ré',exact=True).click()
+    page.get_by_role('button',name='Schmoll 24 · Ré e Mi' if mode=='schmoll' else 'Aprender estas notas',exact=True).click()
