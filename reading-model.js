@@ -5,5 +5,6 @@
  function ledger(p){const result=[];for(let i=-2;i>=p;i-=2)result.push(i);for(let i=10;i<=p;i+=2)result.push(i);return result}
  function where(p){if(p>=0&&p<=8)return p%2===0?`${p/2+1}ª linha`:`${(p+1)/2}º espaço`;if(p===-1)return 'espaço logo abaixo da pauta';if(p< -1)return p%2===0?`${-p/2}ª linha suplementar inferior`:`espaço abaixo da ${(-p-1)/2}ª linha suplementar inferior`;if(p===9)return 'espaço logo acima da pauta';return p%2===0?`${(p-8)/2}ª linha suplementar superior`:`espaço acima da ${(p-9)/2}ª linha suplementar superior`}
  function correct(note,position,sharp){return note.step-30===position&&note.sharp===sharp}
- const api={defaults,prefs,pool,ledger,where,correct,min:-5,max:11};root.ArcoReadingModel=api;if(typeof module==='object')module.exports=api;
+ function round(pool,random=Math.random){const ids=[...pool,...pool].map(n=>n.id);for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}return ids}
+ const api={round,defaults,prefs,pool,ledger,where,correct,min:-5,max:11};root.ArcoReadingModel=api;if(typeof module==='object')module.exports=api;
 })(typeof globalThis==='object'?globalThis:this);

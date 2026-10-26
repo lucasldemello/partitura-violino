@@ -10,3 +10,5 @@ assert.deepEqual(M.ledger(-5),[-2,-4]);assert.deepEqual(M.ledger(11),[10]);asser
 assert.equal(notes.find(n=>n.id==='0-0').step-30,M.min);assert.equal(notes.find(n=>n.id==='3-4').step-30,M.max);
 assert.deepEqual(M.prefs(JSON.stringify({version:1,strings:[2,1,2,9],count:5})),{version:1,strings:[1,2],count:5});assert.deepEqual(M.prefs('{bad'),M.defaults());assert.deepEqual(M.prefs({version:1,strings:[],count:99}),M.defaults());
 console.log('PASS reading:4strings,default2,pitch dedup,shared fingering,accidentals,ledger ranges,preferences');
+for(let count=2;count<=5;count++){const pool=M.pool(notes,{version:1,strings:[1],count});const round=M.round(pool,()=>0);assert.equal(round.length,count*2);for(const n of pool)assert.equal(round.filter(id=>id===n.id).length,2);assert.ok(round.every(id=>id.startsWith('1-')))}
+console.log('PASS reading finite rounds:4/6/8/10 items,each selected note twice');
